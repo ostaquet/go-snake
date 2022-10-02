@@ -73,6 +73,10 @@ func (s *Snake) Update() error {
 	return nil
 }
 
+func (s *Snake) Score() int {
+	return len(s.parts)
+}
+
 func (s *Snake) Draw(screen *ebiten.Image) {
 	for _, part := range s.parts {
 		part.Draw(screen)

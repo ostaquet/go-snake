@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/ostaquet/go-snake/snake"
 	"log"
+	"strconv"
 )
 
 const layoutWidth = 320
@@ -48,7 +49,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case GameRunning:
-		ebitenutil.DebugPrint(screen, "Game running")
+		ebitenutil.DebugPrint(screen, "Score "+strconv.Itoa(g.snake.Score()))
 	case GameOver:
 		ebitenutil.DebugPrint(screen, "Game over")
 	}
