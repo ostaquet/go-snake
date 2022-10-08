@@ -1,12 +1,8 @@
 package snake
 
 import (
-	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
-	"image"
 	_ "image/png"
-	"log"
-	"os"
 )
 
 var AssetCherry *ebiten.Image
@@ -19,16 +15,7 @@ type Cherry struct {
 
 func NewCherry(X, Y int, board *Board) *Cherry {
 	if AssetCherry == nil {
-		// Load the assets
-		dat, err := os.ReadFile("snake/assets/images/Cherry.png")
-		if err != nil {
-			log.Fatal(err)
-		}
-		img, _, err := image.Decode(bytes.NewReader(dat))
-		if err != nil {
-			log.Fatal(err)
-		}
-		AssetCherry = ebiten.NewImageFromImage(img)
+		AssetCherry = LoadImage("Cherry.png")
 	}
 
 	cherry := Cherry{

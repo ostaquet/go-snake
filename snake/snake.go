@@ -12,6 +12,15 @@ var ErrUnauthorizedMove = errors.New("unauthorized move")
 
 const gridSize = 10
 
+type Direction int
+
+const (
+	Up Direction = iota
+	Down
+	Left
+	Right
+)
+
 type Snake struct {
 	parts    []*Part
 	cherries []*Cherry
@@ -19,8 +28,7 @@ type Snake struct {
 	gridSizeX, gridSizeY, visualSize int // Size of the grid in which the snake is evolving
 	board                            *Board
 
-	directionX int // -1 (go to left), 0 (no move), 1 (go to right)
-	directionY int // -1 (go to up), 0 (no move), 1 (go to down)
+	direction Direction
 
 	tickMove   int
 	tickCherry int
@@ -44,7 +52,7 @@ func NewSnake(layoutWidth, layoutHeight int) *Snake {
 
 	// Add the head of the snake at random position on the grid
 	snake.parts = make([]*Part, 1)
-	snake.parts[0] = NewPart(rand.Intn(snake.gridSizeX), rand.Intn(snake.gridSizeY), snake.visualSize, snake.board)
+	snake.parts[0] = NewPart(rand.Intn(snake.gridSizeX), rand.Intn(snake.gridSizeY), Head, snake.board)
 
 	// Create an empty cherry vector
 	snake.cherries = make([]*Cherry, 0)
@@ -89,8 +97,12 @@ func (s *Snake) Score() int {
 func (s *Snake) Draw(screen *ebiten.Image) {
 	s.board.Draw(screen)
 
-	for _, part := range s.parts {
-		part.Draw(screen)
+	for i := range s.parts {
+		if i == 0 {
+			s.parts[i].Draw(screen, s.direction)
+		} else {
+			s.parts[i].Draw(screen, s.computePartDirection(i))
+		}
 	}
 
 	for _, cherry := range s.cherries {
@@ -106,8 +118,16 @@ func (s *Snake) applyMove() {
 	}
 
 	// The head is taking the future position
-	s.parts[0].X = s.parts[0].X + s.directionX
-	s.parts[0].Y = s.parts[0].Y + s.directionY
+	switch s.direction {
+	case Up:
+		s.parts[0].Y = s.parts[0].Y - 1
+	case Right:
+		s.parts[0].X = s.parts[0].X + 1
+	case Down:
+		s.parts[0].Y = s.parts[0].Y + 1
+	case Left:
+		s.parts[0].X = s.parts[0].X - 1
+	}
 }
 
 func (s *Snake) isMoveAllowed() bool {
@@ -159,23 +179,21 @@ func (s *Snake) initDirection() {
 	// Randomly go horizontally or vertically
 	if rand.Intn(2) == 0 {
 		// Horizontally
-		s.directionY = 0
 		if float32(s.parts[0].X)/float32(s.gridSizeX) < 0.5 {
 			// We are on the left side of the board, go to right
-			s.directionX = +1
+			s.direction = Right
 		} else {
 			// We are on the right side of the board, go to left
-			s.directionX = -1
+			s.direction = Left
 		}
 	} else {
 		// Vertically
-		s.directionX = 0
 		if float32(s.parts[0].Y)/float32(s.gridSizeY) < 0.5 {
 			// We are on the upper side of the board, go down
-			s.directionY = +1
+			s.direction = Down
 		} else {
 			// We are on the lower side of the board, go up
-			s.directionY = -1
+			s.direction = Up
 		}
 	}
 }
@@ -193,17 +211,13 @@ func (s *Snake) ApplyDirection(keys []ebiten.Key) {
 
 	switch keys[0] {
 	case ebiten.KeyArrowRight:
-		s.directionX = +1
-		s.directionY = 0
+		s.direction = Right
 	case ebiten.KeyArrowLeft:
-		s.directionX = -1
-		s.directionY = 0
+		s.direction = Left
 	case ebiten.KeyArrowUp:
-		s.directionX = 0
-		s.directionY = -1
+		s.direction = Up
 	case ebiten.KeyArrowDown:
-		s.directionX = 0
-		s.directionY = +1
+		s.direction = Down
 	}
 }
 
@@ -244,7 +258,7 @@ func (s *Snake) eatCherryAndIncreaseSnake() {
 	lastY := s.parts[len(s.parts)-1].Y
 	s.applyMove()
 
-	newTail := NewPart(lastX, lastY, s.visualSize, s.board)
+	newTail := NewPart(lastX, lastY, Body, s.board)
 	s.parts = append(s.parts, newTail)
 }
 
@@ -263,7 +277,40 @@ func (s *Snake) removeCherryAt(x int, y int) {
 }
 
 func (s *Snake) getNextPosition() (x, y int) {
-	x = s.parts[0].X + s.directionX
-	y = s.parts[0].Y + s.directionY
+	x = s.parts[0].X
+	y = s.parts[0].Y
+
+	switch s.direction {
+	case Up:
+		y = s.parts[0].Y - 1
+	case Down:
+		y = s.parts[0].Y + 1
+	case Left:
+		x = s.parts[0].X - 1
+	case Right:
+		x = s.parts[0].X + 1
+	}
 	return
+}
+
+func (s *Snake) computePartDirection(idx int) Direction {
+	if idx == 0 {
+		return s.direction
+	}
+
+	if s.parts[idx].X == s.parts[idx-1].X {
+		// Vertical movement
+		if s.parts[idx].Y < s.parts[idx-1].Y {
+			return Down
+		} else {
+			return Up
+		}
+	} else {
+		// Horizontal movement
+		if s.parts[idx].X < s.parts[idx-1].X {
+			return Right
+		} else {
+			return Left
+		}
+	}
 }
