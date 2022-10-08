@@ -10,11 +10,9 @@ import (
 	"strconv"
 )
 
+// Size of the layout/window
 const layoutWidth = 320
 const layoutHeight = 240
-const squareSize = 10
-const gridSizeX = layoutWidth / squareSize
-const gridSizeY = layoutHeight / squareSize
 
 type Game struct {
 	gridSizeX, gridSizeY int
@@ -62,13 +60,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
+	// Prepare the screen
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Go Snake")
+
 	if err := ebiten.RunGame(&Game{
-		state:     GameRunning,
-		gridSizeX: gridSizeX,
-		gridSizeY: gridSizeY,
-		snake:     snake.NewSnake(gridSizeX, gridSizeY, squareSize),
+		state: GameRunning,
+		snake: snake.NewSnake(layoutWidth, layoutHeight),
 	}); err != nil {
 		log.Fatal(err)
 	}
