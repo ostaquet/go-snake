@@ -52,7 +52,13 @@ func NewSnake(layoutWidth, layoutHeight int) *Snake {
 
 	// Add the head of the snake at random position on the grid
 	snake.parts = make([]*Part, 1)
-	snake.parts[0] = NewPart(rand.Intn(snake.gridSizeX), rand.Intn(snake.gridSizeY), Head, snake.board)
+	snake.parts[0] = NewPart(rand.Intn(snake.gridSizeX), rand.Intn(snake.gridSizeY), snake.board)
+	currentX := snake.parts[0].X
+	currentY := snake.parts[0].Y
+	// Based on the position of the head, define the directions
+	snake.initDirection()
+	snake.applyMove()
+	snake.parts = append(snake.parts, NewPart(currentX, currentY, snake.board))
 
 	// Create an empty cherry vector
 	snake.cherries = make([]*Cherry, 0)
@@ -91,7 +97,7 @@ func (s *Snake) Update() error {
 }
 
 func (s *Snake) Score() int {
-	return len(s.parts)
+	return len(s.parts) - 2
 }
 
 func (s *Snake) Draw(screen *ebiten.Image) {
@@ -99,9 +105,11 @@ func (s *Snake) Draw(screen *ebiten.Image) {
 
 	for i := range s.parts {
 		if i == 0 {
-			s.parts[i].Draw(screen, s.direction)
+			s.parts[i].Draw(screen, s.direction, Head)
+		} else if i == len(s.parts)-1 {
+			s.parts[i].Draw(screen, s.computePartDirection(i), Tail)
 		} else {
-			s.parts[i].Draw(screen, s.computePartDirection(i))
+			s.parts[i].Draw(screen, s.computePartDirection(i), Body)
 		}
 	}
 
@@ -258,7 +266,7 @@ func (s *Snake) eatCherryAndIncreaseSnake() {
 	lastY := s.parts[len(s.parts)-1].Y
 	s.applyMove()
 
-	newTail := NewPart(lastX, lastY, Body, s.board)
+	newTail := NewPart(lastX, lastY, s.board)
 	s.parts = append(s.parts, newTail)
 }
 

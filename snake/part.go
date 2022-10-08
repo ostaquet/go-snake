@@ -8,6 +8,7 @@ import (
 
 var AssetHead *ebiten.Image
 var AssetBody *ebiten.Image
+var AssetTail *ebiten.Image
 
 type Part struct {
 	X, Y   int // X & Y position in the grid
@@ -20,9 +21,10 @@ type PartType int
 const (
 	Head PartType = iota
 	Body
+	Tail
 )
 
-func NewPart(X, Y int, partType PartType, board *Board) *Part {
+func NewPart(X, Y int, board *Board) *Part {
 	if AssetHead == nil {
 		AssetHead = LoadImage("Snake.png").SubImage(image.Rectangle{
 			Min: image.Point{0, 0},
@@ -32,27 +34,31 @@ func NewPart(X, Y int, partType PartType, board *Board) *Part {
 			Min: image.Point{10, 0},
 			Max: image.Point{20, 10},
 		}).(*ebiten.Image)
-	}
-
-	var visual *ebiten.Image
-
-	switch partType {
-	case Head:
-		visual = AssetHead
-	case Body:
-		visual = AssetBody
+		AssetTail = LoadImage("Snake.png").SubImage(image.Rectangle{
+			Min: image.Point{10, 10},
+			Max: image.Point{20, 20},
+		}).(*ebiten.Image)
 	}
 
 	part := Part{
 		X:      X,
 		Y:      Y,
-		visual: visual,
+		visual: AssetBody,
 		board:  board,
 	}
 	return &part
 }
 
-func (p *Part) Draw(screen *ebiten.Image, direction Direction) {
+func (p *Part) Draw(screen *ebiten.Image, direction Direction, partType PartType) {
+	switch partType {
+	case Head:
+		p.visual = AssetHead
+	case Tail:
+		p.visual = AssetTail
+	case Body:
+		p.visual = AssetBody
+	}
+
 	drawOptSquare := ebiten.DrawImageOptions{}
 
 	drawOptSquare.GeoM.Translate(-float64(10)/2, -float64(10)/2)
