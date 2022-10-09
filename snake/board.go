@@ -42,18 +42,18 @@ func NewBoard(X1, Y1, X2, Y2 float64) *Board {
 }
 
 func (b *Board) Draw(screen *ebiten.Image) {
-	drawOptSquare1 := ebiten.DrawImageOptions{}
-	drawOptSquare1.GeoM.Translate(b.x1-1, b.y1-1)
-	screen.DrawImage(b.lines[0], &drawOptSquare1)
-	screen.DrawImage(b.lines[2], &drawOptSquare1)
+	op1 := ebiten.DrawImageOptions{}
+	op1.GeoM.Translate(b.x1-1, b.y1-1)
+	screen.DrawImage(b.lines[0], &op1)
+	screen.DrawImage(b.lines[2], &op1)
 
-	drawOptSquare2 := ebiten.DrawImageOptions{}
-	drawOptSquare2.GeoM.Translate(b.x1-1, b.y2+1)
-	screen.DrawImage(b.lines[1], &drawOptSquare2)
+	op2 := ebiten.DrawImageOptions{}
+	op2.GeoM.Translate(b.x1-1, b.y2+1)
+	screen.DrawImage(b.lines[1], &op2)
 
-	drawOptSquare3 := ebiten.DrawImageOptions{}
-	drawOptSquare3.GeoM.Translate(b.x2+1, b.y1-1)
-	screen.DrawImage(b.lines[3], &drawOptSquare3)
+	op3 := ebiten.DrawImageOptions{}
+	op3.GeoM.Translate(b.x2+1, b.y1-1)
+	screen.DrawImage(b.lines[3], &op3)
 }
 
 func (b *Board) X() float64 {

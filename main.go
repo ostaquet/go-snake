@@ -29,30 +29,37 @@ const (
 type GameState int
 
 func (g *Game) Update() error {
-	// Capture keys and apply direction on Snake
-	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-	g.snake.ApplyDirection(g.keys)
+	// Depending to the game state...
+	switch g.state {
+	case GameRunning:
+		// Capture keys and apply direction on Snake
+		g.keys = inpututil.AppendPressedKeys(g.keys[:0])
+		g.snake.ApplyDirection(g.keys)
 
-	// Update the state of the snake
-	err := g.snake.Update()
-	if errors.Is(err, snake.ErrUnauthorizedMove) {
+		// Update the state of the snake
+		err := g.snake.Update()
+
+		if errors.Is(err, snake.ErrUnauthorizedMove) {
+			g.state = GameOver
+		} else {
+			g.state = GameRunning
+		}
+	case GameOver:
 		g.state = GameOver
-	} else {
-		g.state = GameRunning
 	}
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	g.snake.Draw(screen)
+
 	switch g.state {
 	case GameRunning:
 		ebitenutil.DebugPrint(screen, "Score "+strconv.Itoa(g.snake.Score()))
 	case GameOver:
-		ebitenutil.DebugPrint(screen, "Game over")
+		ebitenutil.DebugPrint(screen, "Game over\nScore "+strconv.Itoa(g.snake.Score()))
 	}
-
-	g.snake.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

@@ -59,21 +59,21 @@ func (p *Part) Draw(screen *ebiten.Image, direction Direction, partType PartType
 		p.visual = AssetBody
 	}
 
-	drawOptSquare := ebiten.DrawImageOptions{}
+	op := ebiten.DrawImageOptions{}
 
-	drawOptSquare.GeoM.Translate(-float64(10)/2, -float64(10)/2)
+	op.GeoM.Translate(-float64(10)/2, -float64(10)/2)
 	switch direction {
 	case Up:
-		drawOptSquare.GeoM.Rotate(float64(270%360) * 2 * math.Pi / 360)
+		op.GeoM.Rotate(float64(270%360) * 2 * math.Pi / 360)
 	case Right:
-		drawOptSquare.GeoM.Rotate(float64(0%360) * 2 * math.Pi / 360)
+		op.GeoM.Rotate(float64(0%360) * 2 * math.Pi / 360)
 	case Down:
-		drawOptSquare.GeoM.Rotate(float64(90%360) * 2 * math.Pi / 360)
+		op.GeoM.Rotate(float64(90%360) * 2 * math.Pi / 360)
 	case Left:
-		drawOptSquare.GeoM.Rotate(float64(180%360) * 2 * math.Pi / 360)
+		op.GeoM.Rotate(float64(180%360) * 2 * math.Pi / 360)
 	}
-	drawOptSquare.GeoM.Translate(+float64(10)/2, +float64(10)/2)
-	drawOptSquare.GeoM.Translate(float64(p.X)*float64(p.visual.Bounds().Dx())+p.board.X(), float64(p.Y)*float64(p.visual.Bounds().Dy())+p.board.Y())
+	op.GeoM.Translate(+float64(10)/2, +float64(10)/2)
+	op.GeoM.Translate(float64(p.X)*float64(p.visual.Bounds().Dx())+p.board.X(), float64(p.Y)*float64(p.visual.Bounds().Dy())+p.board.Y())
 
-	screen.DrawImage(p.visual, &drawOptSquare)
+	screen.DrawImage(p.visual, &op)
 }
