@@ -69,7 +69,9 @@ func NewSnake(layoutWidth, layoutHeight int) *Snake {
 	return snake
 }
 
-func (s *Snake) Update() error {
+func (s *Snake) UpdateKeys(keys []ebiten.Key) error {
+	s.ApplyDirection(keys)
+
 	// Every X ticks, apply the move if it is allowed
 	if s.tickMove == 5 {
 		if s.isMoveAllowed() {

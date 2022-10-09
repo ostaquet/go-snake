@@ -16,48 +16,65 @@ const layoutHeight = 240
 
 type Game struct {
 	gridSizeX, gridSizeY int
+	menu                 *snake.Menu
 	snake                *snake.Snake
 	state                GameState
 	keys                 []ebiten.Key
 }
 
 const (
-	GameRunning GameState = iota
-	GameOver
+	GameStateMenu GameState = iota
+	GameStateRunning
+	GameStateOver
 )
 
 type GameState int
 
 func (g *Game) Update() error {
+	// Capture keys
+	g.keys = inpututil.AppendPressedKeys(g.keys[:0])
+
 	// Depending to the game state...
 	switch g.state {
-	case GameRunning:
-		// Capture keys and apply direction on Snake
-		g.keys = inpututil.AppendPressedKeys(g.keys[:0])
-		g.snake.ApplyDirection(g.keys)
+	case GameStateMenu:
+		// Update the state of the menu based on pressed keys
+		err := g.menu.UpdateKeys(g.keys)
 
-		// Update the state of the snake
-		err := g.snake.Update()
-
-		if errors.Is(err, snake.ErrUnauthorizedMove) {
-			g.state = GameOver
-		} else {
-			g.state = GameRunning
+		if err != nil {
+			log.Fatal(err)
 		}
-	case GameOver:
-		g.state = GameOver
+
+	case GameStateRunning:
+		// Update the state of the snake based on pressed keys
+		err := g.snake.UpdateKeys(g.keys)
+
+		// If there is an unauthorized move, it is a game over
+		if errors.Is(err, snake.ErrUnauthorizedMove) {
+			g.state = GameStateOver
+		} else {
+			if err != nil {
+				log.Fatal(err)
+			}
+			g.state = GameStateRunning
+		}
+	case GameStateOver:
+		// Stay in Gome Over state
+		g.state = GameStateOver
 	}
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.snake.Draw(screen)
 
 	switch g.state {
-	case GameRunning:
+	case GameStateMenu:
+
+	case GameStateRunning:
+		g.snake.Draw(screen)
 		ebitenutil.DebugPrint(screen, "Score "+strconv.Itoa(g.snake.Score()))
-	case GameOver:
+	case GameStateOver:
+		g.snake.Draw(screen)
 		ebitenutil.DebugPrint(screen, "Game over\nScore "+strconv.Itoa(g.snake.Score()))
 	}
 }
@@ -72,7 +89,8 @@ func main() {
 	ebiten.SetWindowTitle("Go Snake")
 
 	if err := ebiten.RunGame(&Game{
-		state: GameRunning,
+		state: GameStateRunning,
+		menu:  snake.NewMenu(layoutWidth, layoutHeight),
 		snake: snake.NewSnake(layoutWidth, layoutHeight),
 	}); err != nil {
 		log.Fatal(err)
