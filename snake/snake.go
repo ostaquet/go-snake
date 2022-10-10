@@ -2,9 +2,14 @@ package snake
 
 import (
 	"errors"
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"image/color"
+	"log"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
@@ -27,6 +32,7 @@ type Snake struct {
 
 	gridSizeX, gridSizeY, visualSize int // Size of the grid in which the snake is evolving
 	board                            *Board
+	mplusSmallFont                   font.Face
 
 	direction Direction
 
@@ -41,7 +47,19 @@ func NewSnake(layoutWidth, layoutHeight int) *Snake {
 	// New board
 	snake.board = NewBoard(5, 15, float64(layoutWidth-5), float64(layoutHeight-5))
 
-	fmt.Printf("Width: %d, Heigth: %d\n", snake.board.Width(), snake.board.Height())
+	// Load fonts
+	tt := LoadFont("mplus-1p-regular.ttf")
+
+	var err error
+	const dpi = 72
+	snake.mplusSmallFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    10,
+		DPI:     dpi,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Store important data
 	snake.gridSizeX = snake.board.Width() / gridSize
@@ -104,6 +122,10 @@ func (s *Snake) Score() int {
 
 func (s *Snake) Draw(screen *ebiten.Image) {
 	s.board.Draw(screen)
+
+	scoreToDisplay := "Score: " + strconv.Itoa(len(s.parts)-2)
+	placeholderScore := text.BoundString(s.mplusSmallFont, scoreToDisplay)
+	text.Draw(screen, scoreToDisplay, s.mplusSmallFont, 4, placeholderScore.Dy()+2, color.White)
 
 	for i := range s.parts {
 		if i == 0 {

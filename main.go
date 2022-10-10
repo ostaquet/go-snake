@@ -38,10 +38,10 @@ func (g *Game) Update() error {
 	switch g.state {
 	case GameStateMenu:
 		// Update the state of the menu based on pressed keys
-		err := g.menu.UpdateKeys(g.keys)
+		startGame := g.menu.UpdateKeys(g.keys)
 
-		if err != nil {
-			log.Fatal(err)
+		if startGame {
+			g.state = GameStateRunning
 		}
 
 	case GameStateRunning:
@@ -71,7 +71,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.menu.Draw(screen)
 	case GameStateRunning:
 		g.snake.Draw(screen)
-		ebitenutil.DebugPrint(screen, "Score "+strconv.Itoa(g.snake.Score()))
 	case GameStateOver:
 		g.snake.Draw(screen)
 		ebitenutil.DebugPrint(screen, "Game over\nScore "+strconv.Itoa(g.snake.Score()))
@@ -88,7 +87,7 @@ func main() {
 	ebiten.SetWindowTitle("Go Snake")
 
 	if err := ebiten.RunGame(&Game{
-		state: GameStateRunning,
+		state: GameStateMenu,
 		menu:  snake.NewMenu(layoutWidth, layoutHeight),
 		snake: snake.NewSnake(layoutWidth, layoutHeight),
 	}); err != nil {

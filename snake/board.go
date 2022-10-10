@@ -12,12 +12,7 @@ type Board struct {
 	lines  []*ebiten.Image
 }
 
-var white = color.RGBA{
-	R: 255,
-	G: 255,
-	B: 255,
-	A: 255,
-}
+var grey = color.RGBA{R: 0xC0, G: 0xC0, B: 0xC0, A: 255}
 
 func NewBoard(X1, Y1, X2, Y2 float64) *Board {
 	b := &Board{
@@ -30,13 +25,13 @@ func NewBoard(X1, Y1, X2, Y2 float64) *Board {
 	b.lines = make([]*ebiten.Image, 4)
 
 	b.lines[0] = ebiten.NewImage(int(b.x2-b.x1)+2, 1)
-	b.lines[0].Fill(white)
+	b.lines[0].Fill(grey)
 	b.lines[1] = ebiten.NewImage(int(b.x2-b.x1)+2, 1)
-	b.lines[1].Fill(white)
+	b.lines[1].Fill(grey)
 	b.lines[2] = ebiten.NewImage(1, int(b.y2-b.y1)+2+1)
-	b.lines[2].Fill(white)
+	b.lines[2].Fill(grey)
 	b.lines[3] = ebiten.NewImage(1, int(b.y2-b.y1)+2+1)
-	b.lines[3].Fill(white)
+	b.lines[3].Fill(grey)
 
 	return b
 }

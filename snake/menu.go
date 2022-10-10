@@ -40,18 +40,32 @@ func NewMenu(layoutWidth, layoutHeight int) *Menu {
 	return menu
 }
 
-func (m *Menu) UpdateKeys(keys []ebiten.Key) error {
-	return nil
+func (m *Menu) UpdateKeys(keys []ebiten.Key) (startGame bool) {
+	// No key pressed
+	if len(keys) == 0 {
+		return false
+	}
+
+	return keys[0] == ebiten.KeySpace
 }
 
 func (m *Menu) Draw(screen *ebiten.Image) {
-	gray := color.RGBA{R: 0x80, G: 0x80, B: 0x80, A: 0xff}
+	darkGrey := color.RGBA{R: 0x80, G: 0x80, B: 0x80, A: 0xff}
+	white := color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xff}
 
-	myText := "Bibi Bear!"
+	title := "Go Snake!"
 
-	b := text.BoundString(m.mplusNormalFont, myText)
-	posX := (320 / 2) - (b.Dx() / 2)
-	posY := (240 / 2) + (b.Dy() / 2)
+	b1 := text.BoundString(m.mplusBigFont, title)
+	posX1 := (320 / 2) - (b1.Dx() / 2)
+	posY1 := (240 / 4) + (b1.Dy() / 2)
 
-	text.Draw(screen, myText, m.mplusNormalFont, posX, posY, gray)
+	text.Draw(screen, title, m.mplusBigFont, posX1, posY1, white)
+
+	instructions := "Press space bar to start"
+
+	b2 := text.BoundString(m.mplusNormalFont, instructions)
+	posX2 := (320 / 2) - (b2.Dx() / 2)
+	posY2 := (240 / 3 * 2) + (b2.Dy() / 2)
+
+	text.Draw(screen, instructions, m.mplusNormalFont, posX2, posY2, darkGrey)
 }
