@@ -66,10 +66,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-
 	switch g.state {
 	case GameStateMenu:
-
+		g.menu.Draw(screen)
 	case GameStateRunning:
 		g.snake.Draw(screen)
 		ebitenutil.DebugPrint(screen, "Score "+strconv.Itoa(g.snake.Score()))

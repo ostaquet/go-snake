@@ -3,6 +3,7 @@ package snake
 import (
 	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
+	"golang.org/x/image/font/opentype"
 	"image"
 	"log"
 	"os"
@@ -18,5 +19,20 @@ func LoadImage(filename string) *ebiten.Image {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return ebiten.NewImageFromImage(img)
+}
+
+func LoadFont(filename string) *opentype.Font {
+	// Load the asset
+	dat, err := os.ReadFile("snake/assets/fonts/" + filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ft, err := opentype.Parse(dat)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return ft
 }
