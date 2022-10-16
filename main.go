@@ -3,11 +3,9 @@ package main
 import (
 	"errors"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/ostaquet/go-snake/snake"
 	"log"
-	"strconv"
 )
 
 // Size of the layout/window
@@ -18,6 +16,7 @@ type Game struct {
 	gridSizeX, gridSizeY int
 	menu                 *snake.Menu
 	snake                *snake.Snake
+	gameOver             *snake.GameOver
 	state                GameState
 	keys                 []ebiten.Key
 }
@@ -60,6 +59,14 @@ func (g *Game) Update() error {
 	case GameStateOver:
 		// Stay in Gome Over state
 		g.state = GameStateOver
+
+		// Update the state based on pressed keys
+		retry := g.gameOver.UpdateKeys(g.keys)
+
+		if retry {
+			g.snake = snake.NewSnake(layoutWidth, layoutHeight)
+			g.state = GameStateRunning
+		}
 	}
 
 	return nil
@@ -72,8 +79,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GameStateRunning:
 		g.snake.Draw(screen)
 	case GameStateOver:
-		g.snake.Draw(screen)
-		ebitenutil.DebugPrint(screen, "Game over\nScore "+strconv.Itoa(g.snake.Score()))
+		g.gameOver.Draw(screen, g.snake.Score())
 	}
 }
 
@@ -87,9 +93,10 @@ func main() {
 	ebiten.SetWindowTitle("Go Snake")
 
 	if err := ebiten.RunGame(&Game{
-		state: GameStateMenu,
-		menu:  snake.NewMenu(layoutWidth, layoutHeight),
-		snake: snake.NewSnake(layoutWidth, layoutHeight),
+		state:    GameStateMenu,
+		menu:     snake.NewMenu(layoutWidth, layoutHeight),
+		snake:    snake.NewSnake(layoutWidth, layoutHeight),
+		gameOver: snake.NewGameOver(layoutWidth, layoutHeight),
 	}); err != nil {
 		log.Fatal(err)
 	}
